@@ -2,6 +2,11 @@
 
 QuizQuest is a web application that allows users to test their knowledge by taking quizzes on various topics. It provides an interactive and engaging experience for users to answer multiple-choice questions and receive instant feedback on their answers.
 
+## Website
+
+Visit the [Quiz App Website](https://quizquest.vercel.app/) to try it out.
+![QuizQuest sample](/public/images/sample.png)
+
 ## Table of Contents
 
 - [Features](#features)
