@@ -6,6 +6,7 @@ import {Link, useLocation} from "react-router-dom";
 import {parseHtmlString, shuffleArray} from "utils";
 import {QuestionType} from "utils/index.types";
 import Result from "./Result";
+import ErrorMsg from "components/ErrorMsg";
 
 function Quiz() {
   // get params from the url
@@ -16,7 +17,7 @@ function Quiz() {
   const number = params.get("number");
 
   // fetch questions from api
-  const {data, isPending} = useFetch<{
+  const {data, isPending, error} = useFetch<{
     results: QuestionType[];
   }>(
     `/api.php?category=${category}&difficulty=${difficulty}&amount=${number}&type=multiple`
@@ -101,100 +102,112 @@ function Quiz() {
         </div>
       </div>
     );
+  if (error) return <ErrorMsg error={error} />;
   return (
     <div className="h-full flex flex-col mx-auto justify-center">
-      {currentQuestion && currentCount <= questions.length ? (
-        <>
-          <div className="md:hidden block">
-            <div className="flex justify-between items-center">
-              <p className="text-primary text-sm mb-1 font-semibold">
-                Question {currentCount + 1} of {questions.length}
-              </p>
-              <Link
-                to="/"
-                className="rounded-xl text-sm bg-transparent p-2 hover:bg-primary-100 transition-colors font-semibold text-primary"
-              >
-                Restart
-              </Link>
-            </div>
-
-            <LinearProgressBar
-              value={((currentCount + 1) / parseInt(number || "10")) * 100}
-            />
-          </div>
-          <div className="my-auto">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-primary hidden md:block text-sm mb-1 font-semibold">
+      {questions.length ? (
+        currentCount <= questions.length ? (
+          <>
+            <div className="md:hidden block">
+              <div className="flex justify-between items-center">
+                <p className="text-primary text-sm mb-1 font-semibold">
                   Question {currentCount + 1} of {questions.length}
                 </p>
-                <h4 className="text-xl md:max-w-[85%]">
-                  {parseHtmlString(currentQuestion.question)}
-                </h4>
+                <Link
+                  to="/"
+                  className="rounded-xl text-sm bg-transparent p-2 hover:bg-primary-100 transition-colors font-semibold text-primary"
+                >
+                  Restart
+                </Link>
               </div>
-              <Link
-                to="/"
-                className="rounded-xl hidden md:block bg-transparent p-2 hover:bg-primary-100 transition-colors font-semibold text-primary"
-              >
-                Restart
-              </Link>
-            </div>
-            <div className="mt-8">
-              <div className="grid gap-3 grid-cols-1">
-                {currentQuestion.options.map(el => (
-                  <Option
-                    key={el}
-                    label={parseHtmlString(el) || ""}
-                    value={el}
-                    id={el}
-                    name={currentQuestion.question}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="flex mt-auto mb-6 items-center justify-between gap-6">
-            <button
-              onClick={() =>
-                setCurrentCount(prevPage => (prevPage > 0 ? prevPage - 1 : 0))
-              }
-              className="btn btn-outlined"
-            >
-              Back
-            </button>
-            <div className="hidden md:block flex-grow">
+
               <LinearProgressBar
                 value={((currentCount + 1) / parseInt(number || "10")) * 100}
               />
             </div>
-            {currentCount + 1 < (data?.results.length || 1) && (
+            <div className="my-auto">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-primary hidden md:block text-sm mb-1 font-semibold">
+                    Question {currentCount + 1} of {questions.length}
+                  </p>
+                  <h4 className="text-xl md:max-w-[85%]">
+                    {parseHtmlString(currentQuestion.question)}
+                  </h4>
+                </div>
+                <Link
+                  to="/"
+                  className="rounded-xl hidden md:block bg-transparent p-2 hover:bg-primary-100 transition-colors font-semibold text-primary"
+                >
+                  Restart
+                </Link>
+              </div>
+              <div className="mt-8">
+                <div className="grid gap-3 grid-cols-1">
+                  {currentQuestion.options.map(el => (
+                    <Option
+                      key={el}
+                      label={parseHtmlString(el) || ""}
+                      value={el}
+                      id={el}
+                      name={currentQuestion.question}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex mt-auto mb-6 items-center justify-between gap-6">
               <button
-                disabled={!answers[currentCount]}
                 onClick={() =>
-                  setCurrentCount(prevPage =>
-                    (data?.results.length || 1) > prevPage
-                      ? prevPage + 1
-                      : prevPage
-                  )
+                  setCurrentCount(prevPage => (prevPage > 0 ? prevPage - 1 : 0))
                 }
-                className="btn"
+                className="btn btn-outlined"
               >
-                Next
+                Back
               </button>
-            )}
-            {currentCount + 1 === (data?.results.length || 1) && (
-              <button
-                disabled={!answers[currentCount]}
-                onClick={calculateScore}
-                className="btn"
-              >
-                Submit
-              </button>
-            )}
-          </div>
-        </>
+              <div className="hidden md:block flex-grow">
+                <LinearProgressBar
+                  value={((currentCount + 1) / parseInt(number || "10")) * 100}
+                />
+              </div>
+              {currentCount + 1 < (data?.results.length || 1) && (
+                <button
+                  disabled={!answers[currentCount]}
+                  onClick={() =>
+                    setCurrentCount(prevPage =>
+                      (data?.results.length || 1) > prevPage
+                        ? prevPage + 1
+                        : prevPage
+                    )
+                  }
+                  className="btn"
+                >
+                  Next
+                </button>
+              )}
+              {currentCount + 1 === (data?.results.length || 1) && (
+                <button
+                  disabled={!answers[currentCount]}
+                  onClick={calculateScore}
+                  className="btn"
+                >
+                  Submit
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <Result score={score} total={questions.length} />
+        )
       ) : (
-        <Result score={score} total={questions.length} />
+        <div className="error-msg">
+          <img src="/images/no-results.png" alt="no result" />
+          <h2 className="text-xl font-semibold">Oops, Error</h2>
+          <p>No questions were found...</p>
+          <Link to="/" className="btn">
+            Go Home
+          </Link>
+        </div>
       )}
     </div>
   );
