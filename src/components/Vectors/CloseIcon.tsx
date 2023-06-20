@@ -1,5 +1,4 @@
 import * as React from "react";
-import {SVGProps} from "react";
 
 type Props = {bg?: string; color?: string} & React.SVGProps<SVGSVGElement>;
 

@@ -1,6 +1,6 @@
-# Quiz App
+# QuizQuest
 
-The Quiz App is a web application that allows users to test their knowledge by taking quizzes on various topics. It provides an interactive and engaging experience for users to answer multiple-choice questions and receive instant feedback on their answers.
+QuizQuest is a web application that allows users to test their knowledge by taking quizzes on various topics. It provides an interactive and engaging experience for users to answer multiple-choice questions and receive instant feedback on their answers.
 
 ## Table of Contents
 
